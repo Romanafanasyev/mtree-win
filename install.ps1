@@ -8,8 +8,11 @@ Invoke-WebRequest -UseBasicParsing -Uri "$base/mtree.ps1"                  -OutF
 Invoke-WebRequest -UseBasicParsing -Uri "$base/wrappers/mtree.cmd"         -OutFile "$bin\mtree.cmd"
 Invoke-WebRequest -UseBasicParsing -Uri "$base/wrappers/mtree"             -OutFile "$bin\mtree"
 
-# Making bash-wrapper executable
-try { & bash -lc "chmod +x /c/Users/$env:USERNAME/bin/mtree" } catch {}
+# Make bash wrapper executable only if this is Git Bash, not WSL
+$bashCmd = (Get-Command bash -ErrorAction SilentlyContinue).Source
+if ($bashCmd -and $bashCmd -match '\\Git\\bin\\bash\.exe$') {
+  & $bashCmd -lc "chmod +x /c/Users/$env:USERNAME/bin/mtree"
+}
 
 # Add %USERPROFILE%\bin to PATH (user scope)
 $u = [Environment]::GetEnvironmentVariable('Path','User')
